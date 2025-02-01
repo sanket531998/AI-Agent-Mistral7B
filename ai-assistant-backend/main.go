@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 // Define request structure
@@ -76,7 +77,17 @@ func main() {
 	// Define API routes
 	router.HandleFunc("/api/ask", aiHandler).Methods("POST")
 
+	// Set up CORS middleware
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"}, // Allow all origins (you can restrict it to specific domains)
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "Authorization"},
+	})
+
+	// Apply CORS middleware to the router
+	handler := corsMiddleware.Handler(router)
+
 	// Start the server
 	fmt.Println("Server is running on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
